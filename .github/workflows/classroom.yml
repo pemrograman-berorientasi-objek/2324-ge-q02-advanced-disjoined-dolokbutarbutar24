@@ -373,7 +373,7 @@ jobs:
           12S1101|12S20003|2020/2021|even|A
           12S20002|B/A
           12S20002|B/A
-        comparison-method: regex
+        comparison-method: exact
         timeout: 1
         max-score: 20
     - name: Autograding Reporter
