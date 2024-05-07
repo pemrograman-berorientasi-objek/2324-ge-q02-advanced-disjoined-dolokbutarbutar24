@@ -94,4 +94,8 @@ public class Enrollment implements GradeHistory {
     public void setPreviousGrade(String previousGrade) {
         this.previousGrade = previousGrade;
     }
+
+    public int compareTo(Enrollment enrollment2) {
+        return 0;
+    }
 }

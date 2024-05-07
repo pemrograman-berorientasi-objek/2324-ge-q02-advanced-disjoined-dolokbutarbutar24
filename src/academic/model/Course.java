@@ -51,4 +51,16 @@ public class Course {
         Course course = (Course) obj;
         return Objects.equals(code, course.code);
     }
+
+    public String getYear() {
+        return null;
+    }
+
+    public String getSemester() {
+        return null;
+    }
+
+    public String getLecturerInitial() {
+        return null;
+    }
 }
