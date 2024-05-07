@@ -3,11 +3,6 @@ package academic.driver;
 import academic.model.*;
 import java.util.*;
 
-/**
- * @author 12S22009 - Dolok Butarbutar
- * @author 12S22015 - Angelina Nadeak
- */
-
 public class Driver1 {
 
     public static void main(String[] args) {
