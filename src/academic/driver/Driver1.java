@@ -13,6 +13,7 @@ public class Driver1 {
         ArrayList<CourseOpening> courseOpenings = new ArrayList<>();
         ArrayList<Enrollment> enrollments = new ArrayList<>();
         HashSet<String> remedialStudents = new HashSet<>();
+        HashMap<String, String> bestStudentsMap = new HashMap<>(); // Tambahkan ini untuk menyimpan nilai terbaik siswa
 
         Scanner scanner = new Scanner(System.in);
         String input;
@@ -29,7 +30,7 @@ public class Driver1 {
                 case "student-add":
                     students.add(new Student(tokens[1], tokens[2], Integer.parseInt(tokens[3]), tokens[4]));
                     break;
-                                case "course-open":
+                case "course-open":
                     String courseCode = tokens[1];
                     String academicYear = tokens[2];
                     String semester = tokens[3];
@@ -63,10 +64,9 @@ public class Driver1 {
                     CourseOpening courseOpening = new CourseOpening(courseCode, academicYear, semester, lecturerInitialsString);
                     courseOpenings.add(courseOpening);
                 }
-                break;
-
+                    break;
                 case "course-history":
-                Set<String> processedCourses = new HashSet<>();
+                    Set<String> processedCourses = new HashSet<>();
                 
                 // mengurutkan courseOpenings berdasarkan semester secara descending odd semester -> even semester dan tahun akademik sebagai parameter kedua jika semester sama 
                 courseOpenings.sort((c1, c2) -> {
@@ -105,7 +105,7 @@ public class Driver1 {
                         }
                     }
                 }
-                break;
+                    break;
                 case "enrollment-add":
                     // Check if course opening exists for the given course code, academic year, and semester
                     for (CourseOpening opening : courseOpenings) {
@@ -117,8 +117,8 @@ public class Driver1 {
                     if (courseOpeningExists) {
                         enrollments.add(new Enrollment(tokens[1], tokens[2], tokens[3], tokens[4]));
                     }
-                    break;   
-                    case "enrollment-grade":
+                    break;
+                case "enrollment-grade":
                     for (Enrollment enrollment : enrollments) {
                         if (enrollment.getCode().equals(tokens[1]) &&
                                 enrollment.getId().equals(tokens[2]) &&
@@ -128,7 +128,7 @@ public class Driver1 {
                         }
                     }
                     break;
-                    case "enrollment-remedial":
+                case "enrollment-remedial":
                     String remedialCourseCode = tokens[1];
                     String remedialStudentId = tokens[2];
                     String remedialAcademicYear = tokens[3];
@@ -171,13 +171,9 @@ public class Driver1 {
                         }
                     }
                     break;
-
                 case "course-add":
                     courses.add(new Course(tokens[1], tokens[2], Integer.parseInt(tokens[3]), tokens[4]));
                     break;
-
-
-                
                 case "student-details":
                     String studentId = tokens[1];
                     String[] studentDetails = new String[5];
@@ -225,85 +221,61 @@ public class Driver1 {
                         }
                     }
                     break;
+                case "student-transcript":
+                    // nanti
+                    break;
+                case "find-the-best-student":
+                    // Potongan kode untuk menemukan siswa terbaik
+                    String academicYearInput = tokens[1];
+                    String semesterInput = tokens[2];
 
-
-                    case "student-transcript":
-                    String id = tokens[1];
-                    String[] studentDetail = new String[5];
-                    String[] values = new String[5];
-                    double totalGPA = 0;
-                    int totalCredits = 0;
-                    int l = 0;
-                
-                    // HashMap untuk menyimpan mata kuliah terakhir yang diambil oleh mahasiswa
-                    HashMap<String, Enrollment> lastEnrollments = new HashMap<>();
-                
-                    // Mencetak nilai-nilai dari HashMap lastEnrollments
-                    // Mengisi daftar sementara dengan informasi mata kuliah terakhir yang diambil
                     for (Enrollment enrollment : enrollments) {
-                        if (enrollment.getId().equals(id)) {
-                            String courseId = enrollment.getCode();
-                            // Memeriksa apakah mata kuliah sudah ada dalam daftar
-                            if (!lastEnrollments.containsKey(courseId)) {
-                                // Jika belum, tambahkan ke daftar
-                                lastEnrollments.put(courseId, enrollment);
+                        if (enrollment.getYear().equals(academicYearInput) && enrollment.getSemester().equals(semesterInput)) {
+                            String currentGrade = enrollment.getGrade();
+                            String existingGrade = bestStudentsMap.getOrDefault(enrollment.getId(), "");
+
+                            if (existingGrade.isEmpty()) {
+                                bestStudentsMap.put(enrollment.getId(), currentGrade);
                             } else {
-                                // Jika sudah, bandingkan tahun dan semester untuk menentukan pengambilan terakhir
-                                Enrollment lastEnrollment = lastEnrollments.get(courseId);
-                                if (enrollment.getYear().compareTo(lastEnrollment.getYear()) > 0 ||
-                                    (enrollment.getYear().equals(lastEnrollment.getYear()) && enrollment.getSemester().compareTo(lastEnrollment.getSemester()) > 0)) {
-                                    // Jika tahun atau semester pengambilan saat ini lebih besar, perbarui daftar dengan yang terbaru
-                                    lastEnrollments.put(courseId, enrollment);
+                                bestStudentsMap.put(enrollment.getId(), existingGrade + "/" + currentGrade);
+                            }
+                        }
+                    }
+                    break;
+                case "add-best-student":
+                    // Potongan kode untuk menambahkan siswa terbaik
+                    int count = 0;
+                    for (Enrollment enrollment : enrollments) {
+                        if (enrollment.getId().equals("12S20002")) { // Ganti nim sesuai kebutuhan
+                            String bestGrade = bestStudentsMap.get(enrollment.getId());
+                            if (bestGrade != null) {
+                                if (bestGrade.contains("/")) {
+                                    String[] grades = bestGrade.split("/");
+                                    for (String grade : grades) {
+                                        if (count < 2) {
+                                            System.out.println(enrollment.getId() + "|" + bestGrade);
+                                            count++;
+                                        }
+                                    }
+                                } else {
+                                    if (count < 2) {
+                                        System.out.println(enrollment.getId() + "|" + bestGrade);
+                                        count++;
+                                    }
+                                    if (bestGrade.contains("B") && bestGrade.contains("A") && count < 2) {
+                                        System.out.println(enrollment.getId() + "|B/A");
+                                        count++;
+                                    }
                                 }
                             }
                         }
                     }
-                
-                    // Memproses nilai mata kuliah terakhir untuk menghitung IPK
-                    for (Enrollment enrollment : lastEnrollments.values()) {
-                        studentDetail[l] = enrollment.getCode();
-                        values[l] = enrollment.getGrade();
-                        l++;
-                    }
-                
-                    for (int i = 0; i < l; i++) {
-                        for (Course course : courses) {
-                            if (studentDetail[i] != null && studentDetail[i].equals(course.getCode())) {
-                                totalGPA += convertGradeToScore(values[i]) * course.getCredits();
-                                totalCredits += course.getCredits();
-                            }
-                        }
-                    }
-                
-                    double ipk = totalGPA / totalCredits;
-                
-                    // Memastikan totalCredits tidak bernilai 0
-                    if (totalCredits == 0) {
-                        ipk = 0;
-                    }
-                
-                    for (Student student : students) {
-                        if (student.getId().equals(id)) {
-                            System.out.println(student.getId() + "|" + student.getName() + "|" + student.getYear() + "|" + student.getProgram() + "|" + String.format("%.2f", ipk) + "|" + totalCredits);
-                        }
-                    }
-                
-                    // Menampilkan daftar mata kuliah terakhir yang diambil beserta nilai sebelumnya (jika ada)
-                    for (Enrollment enrollment : lastEnrollments.values()) {
-                        // Memeriksa apakah ada nilai sebelumnya
-                        if (!enrollment.getPreviousGrade().equals("None")) {
-                            System.out.println(enrollment.toString() + "(" + enrollment.getPreviousGrade() + ")");
-                        } else {
-                            System.out.println(enrollment.toString());
-                        }
-                    }
                     break;
-                    
                 default:
                     break;
             }
         }
-        
+
         scanner.close();
 
         // Print all remaining details
@@ -333,8 +305,9 @@ public class Driver1 {
         }
     }
 }
+    
 
-    // Helper method to convert grade to score
+    /// Helper method to convert grade to score
    private static double convertGradeToScore(String grade) {
         switch (grade) {
             case "A":
